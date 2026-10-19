@@ -1,0 +1,22 @@
+{
+  "name": "lista-presentes-casamento",
+  "version": "1.0.0",
+  "description": "Sistema de Lista de Presentes e Checklist Interativo para Casamento",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "casamento",
+    "lista-de-presentes",
+    "checklist",
+    "wedding-registry"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}

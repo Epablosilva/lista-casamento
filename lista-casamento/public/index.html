@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Casamento & Checklist de Presentes</title>
+  
+  <!-- Google Fonts: Playfair Display & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Confetti library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top Announcement / Couple Nav -->
+  <nav class="top-nav">
+    <div class="nav-container">
+      <div class="nav-brand">
+        <span class="wedding-ring-icon">💍</span>
+        <span class="nav-title" id="navCoupleNames">Lista de Casamento</span>
+      </div>
+
+      <div class="nav-actions">
+        <button id="btnAdminAccess" class="btn-nav-outline" title="Acesso exclusivo para os noivos">
+          <i class="fa-solid fa-lock"></i>
+          <span class="nav-btn-text">Área dos Noivos</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Admin Active Banner (Visible only when logged in) -->
+  <div id="adminBanner" class="admin-banner hidden">
+    <div class="admin-banner-content">
+      <div class="admin-badge">
+        <i class="fa-solid fa-crown"></i>
+        <span>Modo Noivos Ativado</span>
+      </div>
+      <div class="admin-quick-actions">
+        <button id="btnOpenAddItem" class="btn-admin-action primary">
+          <i class="fa-solid fa-plus"></i> Adicionar Presente
+        </button>
+        <button id="btnOpenMessages" class="btn-admin-action">
+          <i class="fa-solid fa-envelope-open-text"></i> Mensagens (<span id="adminMsgCount">0</span>)
+        </button>
+        <button id="btnExportCsv" class="btn-admin-action">
+          <i class="fa-solid fa-file-csv"></i> Baixar Relatório
+        </button>
+        <button id="btnOpenConfig" class="btn-admin-action">
+          <i class="fa-solid fa-gear"></i> Configurações
+        </button>
+        <button id="btnLogoutAdmin" class="btn-admin-action danger">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i> Sair
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero Header -->
+  <header class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="monogram-wrapper">
+        <div class="monogram-circle" id="heroMonogram">S & L</div>
+      </div>
+
+      <p class="hero-pretitle">Nosso Grande Dia Está Chegando</p>
+      <h1 class="hero-title" id="heroCoupleNames">Sofia & Lucas</h1>
+      <p class="hero-quote">“O amor não consiste em olhar um para o outro, mas sim em olhar juntos na mesma direção.”</p>
+
+      <!-- Countdown -->
+      <div class="countdown-card" id="countdownWrapper">
+        <div class="countdown-title">
+          <i class="fa-regular fa-clock"></i> Contagem Regressiva para o Casamento
+        </div>
+        <div class="countdown-grid">
+          <div class="countdown-item">
+            <span class="countdown-number" id="countDays">00</span>
+            <span class="countdown-label">Dias</span>
+          </div>
+          <div class="countdown-sep">:</div>
+          <div class="countdown-item">
+            <span class="countdown-number" id="countHours">00</span>
+            <span class="countdown-label">Horas</span>
+          </div>
+          <div class="countdown-sep">:</div>
+          <div class="countdown-item">
+            <span class="countdown-number" id="countMinutes">00</span>
+            <span class="countdown-label">Min</span>
+          </div>
+          <div class="countdown-sep">:</div>
+          <div class="countdown-item">
+            <span class="countdown-number" id="countSeconds">00</span>
+            <span class="countdown-label">Seg</span>
+          </div>
+        </div>
+        <p class="wedding-date-text" id="heroWeddingDate"><i class="fa-regular fa-calendar-check"></i> 28 de Novembro de 2026</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-container">
+    
+    <!-- Welcome Message Card -->
+    <section class="welcome-card">
+      <div class="welcome-decor-leaf">🌿</div>
+      <h2 id="welcomeTitle">Bem-vindos à Nossa Lista de Casamento!</h2>
+      <p id="welcomeMessage">
+        Queridos amigos e familiares! Estamos preparando nosso novo lar com muito carinho e criamos esta lista em formato de checklist interativo.
+        Você pode escolher livremente o presente que preferir para abençoar nossa nova fase!
+      </p>
+
+      <!-- Optional PIX box -->
+      <div id="pixContainer" class="pix-box hidden">
+        <div class="pix-header">
+          <i class="fa-brands fa-pix pix-icon"></i>
+          <div>
+            <strong>Prefere presentear com cota em dinheiro / Pix?</strong>
+            <p>Se preferir nos abençoar com qualquer valor via Pix:</p>
+          </div>
+        </div>
+        <div class="pix-key-wrapper">
+          <input type="text" id="pixKeyInput" readonly value="">
+          <button id="btnCopyPix" class="btn-copy-pix">
+            <i class="fa-regular fa-copy"></i> Copiar Chave
+          </button>
+        </div>
+        <div id="pixRecipient" class="pix-recipient"></div>
+      </div>
+    </section>
+
+    <!-- Checklist Stats & Progress -->
+    <section class="stats-section">
+      <div class="stats-header">
+        <div class="stats-title-group">
+          <h3><i class="fa-solid fa-list-check"></i> Checklist dos Presentes</h3>
+          <p>Acompanhe em tempo real os presentes que já foram carinhosamente escolhidos</p>
+        </div>
+        <div class="stats-numbers">
+          <div class="stat-badge">
+            <span class="stat-val" id="statReserved">0</span>
+            <span class="stat-lbl">Escolhidos</span>
+          </div>
+          <div class="stat-badge">
+            <span class="stat-val" id="statAvailable">0</span>
+            <span class="stat-lbl">Disponíveis</span>
+          </div>
+          <div class="stat-badge highlight">
+            <span class="stat-val" id="statTotal">0</span>
+            <span class="stat-lbl">Total</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="progress-container">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="progressBarFill" style="width: 0%"></div>
+        </div>
+        <div class="progress-label">
+          <span id="progressText">0% dos presentes já escolhidos 💖</span>
+          <span class="progress-cheer">Muito obrigado pelo carinho!</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filter & Search Bar -->
+    <section class="controls-section">
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" id="searchInput" placeholder="Pesquisar presente por nome, marca ou detalhe...">
+        <button id="btnClearSearch" class="btn-clear-search hidden"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="filter-row">
+        <!-- Status Filters (Tabs) -->
+        <div class="status-pills">
+          <button class="status-pill active" data-status="all">
+            <i class="fa-solid fa-border-all"></i> Todos (<span id="countStatusAll">0</span>)
+          </button>
+          <button class="status-pill" data-status="available">
+            <i class="fa-solid fa-gift"></i> Disponíveis (<span id="countStatusAvailable">0</span>)
+          </button>
+          <button class="status-pill" data-status="reserved">
+            <i class="fa-solid fa-circle-check"></i> Já Escolhidos (<span id="countStatusReserved">0</span>)
+          </button>
+        </div>
+
+        <!-- Sort Select -->
+        <div class="sort-wrapper">
+          <label for="sortSelect"><i class="fa-solid fa-arrow-down-short-wide"></i> Ordenar:</label>
+          <select id="sortSelect">
+            <option value="default">Ordem Padrão</option>
+            <option value="az">Nome (A - Z)</option>
+            <option value="za">Nome (Z - A)</option>
+            <option value="category">Por Categoria</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="category-scroll" id="categoryPills">
+        <button class="category-pill active" data-category="all">
+          Todas as Categorias
+        </button>
+        <!-- Categories injected via JS -->
+      </div>
+    </section>
+
+    <!-- Empty State / Loading State -->
+    <div id="loadingIndicator" class="loading-state">
+      <div class="spinner"></div>
+      <p>Carregando presentes com carinho...</p>
+    </div>
+
+    <div id="emptyState" class="empty-state hidden">
+      <div class="empty-icon">🎁</div>
+      <h3>Nenhum presente encontrado</h3>
+      <p>Tente ajustar a sua pesquisa ou os filtros selecionados.</p>
+      <button id="btnResetFilters" class="btn-secondary">Limpar Filtros</button>
+    </div>
+
+    <!-- Gift Items Grid / Checklist -->
+    <section class="gift-grid" id="giftGrid">
+      <!-- Items dynamically injected by app.js -->
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="footer-content">
+      <p class="footer-heart">Feito com muito ❤️ para o casamento de <strong id="footerCoupleNames">Sofia & Lucas</strong></p>
+      <p class="footer-sub">Agradecemos profundamente por fazer parte da nossa história e do nosso novo lar!</p>
+    </div>
+  </footer>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- 1. Modal Presentear (Convidado) -->
+  <div id="modalReserve" class="modal-overlay hidden">
+    <div class="modal-card">
+      <button class="modal-close-btn" data-close="modalReserve">&times;</button>
+      
+      <div class="modal-header">
+        <div class="modal-icon-badge">🎁</div>
+        <h3>Presentear os Noivos</h3>
+        <p class="modal-subtitle">Confirme sua escolha para marcar o item no checklist e evitar presentes repetidos.</p>
+      </div>
+
+      <div class="selected-gift-preview" id="reserveGiftPreview">
+        <!-- Preview filled via JS -->
+      </div>
+
+      <form id="formReserve" class="modal-form">
+        <input type="hidden" id="reserveItemId" value="">
+
+        <div class="form-group">
+          <label for="guestName">
+            <i class="fa-solid fa-user"></i> Seu Nome e Sobrenome <span class="required">*</span>
+          </label>
+          <input type="text" id="guestName" required placeholder="Ex: Maria e João Silva, Tia Neide...">
+          <small class="form-hint">Este nome aparecerá como "Escolhido por [Seu Nome]" na lista.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="guestPhone">
+            <i class="fa-brands fa-whatsapp"></i> WhatsApp / Telefone <small>(opcional)</small>
+          </label>
+          <input type="tel" id="guestPhone" placeholder="(XX) 99999-9999">
+        </div>
+
+        <div class="form-group">
+          <label for="guestMessage">
+            <i class="fa-regular fa-comment-dots"></i> Deixe um recado carinhoso para os noivos <small>(opcional)</small>
+          </label>
+          <textarea id="guestMessage" rows="3" placeholder="Escreva uma mensagem especial, votos de felicidades ou conselho..."></textarea>
+        </div>
+
+        <div class="checklist-confirm-box">
+          <label class="custom-checkbox-label">
+            <input type="checkbox" id="checkConfirmGift" required checked>
+            <span class="custom-checkmark"></span>
+            <span class="checkbox-text">Confirmo que escolhi este item para presentear o casal.</span>
+          </label>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-close="modalReserve">Voltar</button>
+          <button type="submit" id="btnSubmitReserve" class="btn-primary">
+            <i class="fa-solid fa-heart"></i> Confirmar Presente
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Modal Sucesso Convidado -->
+  <div id="modalSuccess" class="modal-overlay hidden">
+    <div class="modal-card modal-celebrate text-center">
+      <div class="celebrate-icon">🎉</div>
+      <h3 class="celebrate-title">Muito Obrigado!</h3>
+      <p class="celebrate-text" id="successText">
+        Sua escolha foi confirmada com muito sucesso e já está marcada no checklist do casal!
+      </p>
+      <div class="gift-confirmed-tag" id="successItemTitle">
+        <!-- Item name -->
+      </div>
+      <p class="celebrate-footnote">Os noivos ficaram extremamente felizes com o seu carinho! 💖</p>
+      <button class="btn-primary" data-close="modalSuccess">Continuar Olhando a Lista</button>
+    </div>
+  </div>
+
+  <!-- 3. Modal Admin Login (PIN) -->
+  <div id="modalAdminLogin" class="modal-overlay hidden">
+    <div class="modal-card">
+      <button class="modal-close-btn" data-close="modalAdminLogin">&times;</button>
+      
+      <div class="modal-header">
+        <div class="modal-icon-badge">💍</div>
+        <h3>Área dos Noivos</h3>
+        <p class="modal-subtitle">Digite o PIN de segurança para gerenciar a lista de presentes.</p>
+      </div>
+
+      <form id="formAdminLogin" class="modal-form">
+        <div class="form-group">
+          <label for="adminPinInput">
+            <i class="fa-solid fa-key"></i> PIN dos Noivos
+          </label>
+          <input type="password" id="adminPinInput" required placeholder="Digite o PIN (Padrão: 1234)" autofocus>
+          <small class="form-hint">O PIN padrão inicial é <strong>1234</strong> (você pode alterá-lo nas configurações).</small>
+        </div>
+
+        <div id="adminLoginError" class="form-error hidden"></div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-close="modalAdminLogin">Cancelar</button>
+          <button type="submit" class="btn-primary">
+            <i class="fa-solid fa-unlock"></i> Acessar Painel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Modal Adicionar / Editar Item (Admin) -->
+  <div id="modalItemForm" class="modal-overlay hidden">
+    <div class="modal-card modal-large">
+      <button class="modal-close-btn" data-close="modalItemForm">&times;</button>
+      
+      <div class="modal-header">
+        <div class="modal-icon-badge" id="itemFormIconBadge">✨</div>
+        <h3 id="itemFormTitle">Adicionar Novo Presente</h3>
+        <p class="modal-subtitle">Preencha os detalhes do item para exibir no checklist.</p>
+      </div>
+
+      <form id="formItem" class="modal-form">
+        <input type="hidden" id="itemFormId" value="">
+
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label for="itemInputTitle">
+              Nome do Presente <span class="required">*</span>
+            </label>
+            <input type="text" id="itemInputTitle" required placeholder="Ex: Jogo de Panelas Cerâmica 5 Peças">
+          </div>
+          
+          <div class="form-group flex-1">
+            <label for="itemInputCategory">
+              Categoria <span class="required">*</span>
+            </label>
+            <input type="text" id="itemInputCategory" list="categoryOptions" required placeholder="Ex: Cozinha">
+            <datalist id="categoryOptions">
+              <option value="Eletrodomésticos">
+              <option value="Cozinha">
+              <option value="Quarto">
+              <option value="Banheiro">
+              <option value="Sala e Decoração">
+              <option value="Mesa Posta">
+              <option value="Lavanderia">
+              <option value="Geral">
+            </datalist>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="itemInputDescription">
+            Descrição / Especificações <small>(opcional)</small>
+          </label>
+          <textarea id="itemInputDescription" rows="2" placeholder="Ex: Cor neutra, 110V, medidas ou modelo preferido..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label for="itemInputSuggestedUrl">
+              Link de Sugestão de Loja <small>(opcional)</small>
+            </label>
+            <input type="url" id="itemInputSuggestedUrl" placeholder="https://www.amazon.com.br/... ou Magalu">
+            <small class="form-hint">Onde o convidado pode ver o modelo ou comprar online.</small>
+          </div>
+
+          <div class="form-group flex-1">
+            <label for="itemInputIcon">
+              Ícone Emoji
+            </label>
+            <div class="emoji-picker-row">
+              <input type="text" id="itemInputIcon" value="🎁" maxlength="4" style="text-align: center; font-size: 1.3rem;">
+              <div class="quick-emojis">
+                <span class="emoji-pick" data-emoji="🍳">🍳</span>
+                <span class="emoji-pick" data-emoji="☕">☕</span>
+                <span class="emoji-pick" data-emoji="🍲">🍲</span>
+                <span class="emoji-pick" data-emoji="🛏️">🛏️</span>
+                <span class="emoji-pick" data-emoji="🛁">🛁</span>
+                <span class="emoji-pick" data-emoji="🍽️">🍽️</span>
+                <span class="emoji-pick" data-emoji="🤖">🤖</span>
+                <span class="emoji-pick" data-emoji="🎁">🎁</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="itemInputImageUrl">
+            URL da Foto do Produto <small>(opcional)</small>
+          </label>
+          <input type="url" id="itemInputImageUrl" placeholder="https://exemplo.com/imagem-do-produto.jpg">
+          <small class="form-hint">Se deixar em branco, usaremos o ícone emoji elegante.</small>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-close="modalItemForm">Cancelar</button>
+          <button type="submit" id="btnSaveItem" class="btn-primary">
+            <i class="fa-solid fa-floppy-disk"></i> Salvar Presente
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. Modal Mural de Mensagens & Relatório (Admin) -->
+  <div id="modalMessages" class="modal-overlay hidden">
+    <div class="modal-card modal-large">
+      <button class="modal-close-btn" data-close="modalMessages">&times;</button>
+      
+      <div class="modal-header">
+        <div class="modal-icon-badge">💌</div>
+        <h3>Mural de Mensagens & Presentes Escolhidos</h3>
+        <p class="modal-subtitle">Veja todos os recados carinhosos que seus convidados deixaram.</p>
+      </div>
+
+      <div class="messages-modal-toolbar">
+        <span class="messages-badge"><span id="msgTotalCount">0</span> presentes reservados</span>
+        <button id="btnDownloadCsvInModal" class="btn-secondary btn-sm">
+          <i class="fa-solid fa-download"></i> Baixar Planilha (CSV)
+        </button>
+      </div>
+
+      <div class="messages-list-container" id="adminMessagesList">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Modal Configurações dos Noivos (Admin) -->
+  <div id="modalConfig" class="modal-overlay hidden">
+    <div class="modal-card modal-large">
+      <button class="modal-close-btn" data-close="modalConfig">&times;</button>
+      
+      <div class="modal-header">
+        <div class="modal-icon-badge">⚙️</div>
+        <h3>Configurações do Casamento</h3>
+        <p class="modal-subtitle">Personalize os nomes, data, mensagens e a chave Pix.</p>
+      </div>
+
+      <form id="formConfig" class="modal-form">
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="cfgCoupleNames">Nomes do Casal <span class="required">*</span></label>
+            <input type="text" id="cfgCoupleNames" required placeholder="Ex: Sofia & Lucas">
+          </div>
+          <div class="form-group flex-1">
+            <label for="cfgWeddingDate">Data do Casamento <span class="required">*</span></label>
+            <input type="date" id="cfgWeddingDate" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="cfgWelcomeTitle">Título de Boas-Vindas</label>
+          <input type="text" id="cfgWelcomeTitle" placeholder="Bem-vindos à Nossa Lista de Casamento!">
+        </div>
+
+        <div class="form-group">
+          <label for="cfgWelcomeMessage">Mensagem aos Convidados</label>
+          <textarea id="cfgWelcomeMessage" rows="3" placeholder="Mensagem de carinho para os convidados..."></textarea>
+        </div>
+
+        <div class="settings-divider">
+          <span><i class="fa-brands fa-pix"></i> Opção de Presente em Dinheiro (Pix)</span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label for="cfgPixKey">Chave Pix <small>(deixe em branco se não desejar exibir)</small></label>
+            <input type="text" id="cfgPixKey" placeholder="Ex: email@exemplo.com ou telefone">
+          </div>
+          <div class="form-group flex-1">
+            <label for="cfgPixName">Nome do Titular Pix</label>
+            <input type="text" id="cfgPixName" placeholder="Ex: Sofia e Lucas">
+          </div>
+        </div>
+
+        <div class="settings-divider">
+          <span><i class="fa-solid fa-lock"></i> Segurança do Painel</span>
+        </div>
+
+        <div class="form-group">
+          <label for="cfgNewPin">Alterar PIN dos Noivos <small>(deixe em branco para manter o atual)</small></label>
+          <input type="password" id="cfgNewPin" placeholder="Novo PIN (ex: 4 a 6 dígitos)">
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-close="modalConfig">Cancelar</button>
+          <button type="submit" class="btn-primary">
+            <i class="fa-solid fa-floppy-disk"></i> Salvar Alterações
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast hidden">
+    <div class="toast-icon" id="toastIcon">✨</div>
+    <div class="toast-message" id="toastMessage">Ação realizada!</div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
